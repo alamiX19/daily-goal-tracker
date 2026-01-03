@@ -4,190 +4,188 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#1e293b">
-    <meta name="description" content="Track your daily goals and build better habits">
     <title>Daily Goal Tracker</title>
     
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="icon.png">
-    
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.10.3/Recharts.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        .animate-bounce { animation: bounce 1s ease-in-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+        .success-toast { animation: slideIn 0.3s ease-out; }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen">
+    <div id="app"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, RadialBarChart, RadialBar } = Recharts;
+    <script type="module">
+        // Icons as SVG strings
+        const Icons = {
+            Plus: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
+            Download: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+            Trash: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
+            Target: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+            Check: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`,
+            Save: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
+            Sparkles: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
+            Chart: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>`,
+            Zap: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+            Award: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>`,
+            Trend: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`
+        };
 
-        // Lucide Icons as Components
-        const PlusCircle = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>;
-        const Download = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>;
-        const Trash2 = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>;
-        const Target = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>;
-        const BarChart3 = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>;
-        const Zap = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>;
-        const Award = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>;
-        const CheckCircle2 = () => <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>;
-        const TrendingUp = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>;
-        const Save = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>;
-        const Sparkles = () => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>;
+        class GoalTracker {
+            constructor() {
+                this.goals = JSON.parse(localStorage.getItem('currentGoals')) || [
+                    { id: 1, name: 'Morning Exercise', completed: false, category: 'Health' },
+                    { id: 2, name: 'Drink 8 Glasses of Water', completed: false, category: 'Health' },
+                    { id: 3, name: 'Meditate 10 Minutes', completed: false, category: 'Wellness' }
+                ];
+                this.history = JSON.parse(localStorage.getItem('history')) || [];
+                this.viewMode = 'week';
+                this.categories = ['Health', 'Work', 'Personal', 'Learning', 'Wellness', 'Finance'];
+                this.init();
+            }
 
-        function DailyTracker() {
-            const [goals, setGoals] = useState([
-                { id: 1, name: 'Morning Exercise', completed: false, category: 'Health' },
-                { id: 2, name: 'Drink 8 Glasses of Water', completed: false, category: 'Health' },
-                { id: 3, name: 'Meditate 10 Minutes', completed: false, category: 'Wellness' }
-            ]);
-            const [newGoalName, setNewGoalName] = useState('');
-            const [newGoalCategory, setNewGoalCategory] = useState('Personal');
-            const [history, setHistory] = useState([]);
-            const [viewMode, setViewMode] = useState('week');
-            const [showSuccess, setShowSuccess] = useState(false);
-            const [streak, setStreak] = useState(0);
+            init() {
+                this.render();
+                this.attachEventListeners();
+            }
 
-            const currentDate = new Date().toLocaleDateString();
-            const completedCount = goals.filter(g => g.completed).length;
-            const totalCount = goals.length;
-            const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+            getCompletionRate() {
+                const completed = this.goals.filter(g => g.completed).length;
+                return this.goals.length > 0 ? Math.round((completed / this.goals.length) * 100) : 0;
+            }
 
-            const categories = ['Health', 'Work', 'Personal', 'Learning', 'Wellness', 'Finance'];
-
-            useEffect(() => {
-                const timer = setTimeout(() => {
-                    if (goals.length > 0) {
-                        localStorage.setItem('currentGoals', JSON.stringify(goals));
-                    }
-                }, 500);
-                return () => clearTimeout(timer);
-            }, [goals]);
-
-            useEffect(() => {
-                const saved = localStorage.getItem('currentGoals');
-                if (saved) setGoals(JSON.parse(saved));
-                const savedHistory = localStorage.getItem('history');
-                if (savedHistory) setHistory(JSON.parse(savedHistory));
-            }, []);
-
-            useEffect(() => {
-                let currentStreak = 0;
-                const sortedHistory = [...history].sort((a, b) => b.timestamp - a.timestamp);
-                for (let i = 0; i < sortedHistory.length; i++) {
-                    if (sortedHistory[i].completionRate >= 80) currentStreak++;
+            getStreak() {
+                let streak = 0;
+                const sorted = [...this.history].sort((a, b) => b.timestamp - a.timestamp);
+                for (let day of sorted) {
+                    if (day.completionRate >= 80) streak++;
                     else break;
                 }
-                setStreak(currentStreak);
-            }, [history]);
+                return streak;
+            }
 
-            const toggleGoal = (id) => {
-                setGoals(goals.map(g => {
-                    if (g.id === id) {
-                        const newCompleted = !g.completed;
-                        if (newCompleted && completedCount + 1 === totalCount) {
-                            setShowSuccess(true);
-                            setTimeout(() => setShowSuccess(false), 3000);
-                        }
-                        return { ...g, completed: newCompleted };
-                    }
-                    return g;
-                }));
-            };
+            getAnalytics() {
+                const now = Date.now();
+                const day = 24 * 60 * 60 * 1000;
+                let days = this.history;
+                
+                if (this.viewMode === 'week') days = this.history.filter(h => now - h.timestamp < 7 * day);
+                else if (this.viewMode === 'month') days = this.history.filter(h => now - h.timestamp < 30 * day);
+                else if (this.viewMode === 'year') days = this.history.filter(h => now - h.timestamp < 365 * day);
 
-            const addGoal = () => {
-                if (newGoalName.trim()) {
-                    setGoals([...goals, { id: Date.now(), name: newGoalName.trim(), completed: false, category: newGoalCategory }]);
-                    setNewGoalName('');
+                const goalStats = {};
+                days.forEach(d => {
+                    d.goals.forEach(g => {
+                        if (!goalStats[g.name]) goalStats[g.name] = { completed: 0, total: 0 };
+                        goalStats[g.name].total++;
+                        if (g.completed) goalStats[g.name].completed++;
+                    });
+                });
+
+                const performance = Object.keys(goalStats).map(name => ({
+                    name,
+                    rate: goalStats[name].total > 0 ? Math.round((goalStats[name].completed / goalStats[name].total) * 100) : 0,
+                    completed: goalStats[name].completed,
+                    total: goalStats[name].total
+                })).sort((a, b) => a.rate - b.rate);
+
+                const avgCompletion = days.length > 0 ? Math.round(days.reduce((sum, d) => sum + d.completionRate, 0) / days.length) : 0;
+                const perfectDays = days.filter(d => d.completionRate === 100).length;
+
+                return { performance, avgCompletion, perfectDays, daysTracked: days.length };
+            }
+
+            addGoal(name, category) {
+                if (name.trim()) {
+                    this.goals.push({ id: Date.now(), name: name.trim(), completed: false, category });
+                    this.save();
+                    this.render();
                 }
-            };
+            }
 
-            const deleteGoal = (id) => setGoals(goals.filter(g => g.id !== id));
+            toggleGoal(id) {
+                const goal = this.goals.find(g => g.id === id);
+                if (goal) {
+                    goal.completed = !goal.completed;
+                    this.save();
+                    
+                    const allComplete = this.goals.every(g => g.completed);
+                    if (allComplete && this.goals.length > 0) {
+                        this.showSuccess();
+                    }
+                    this.render();
+                }
+            }
 
-            const saveDay = () => {
+            deleteGoal(id) {
+                this.goals = this.goals.filter(g => g.id !== id);
+                this.save();
+                this.render();
+            }
+
+            saveDay() {
+                const today = new Date().toLocaleDateString();
                 const dayData = {
-                    date: currentDate,
-                    goals: goals.map(g => ({ name: g.name, completed: g.completed, category: g.category })),
-                    completionRate: completionRate,
+                    date: today,
+                    goals: this.goals.map(g => ({ name: g.name, completed: g.completed, category: g.category })),
+                    completionRate: this.getCompletionRate(),
                     timestamp: Date.now()
                 };
-                const existingIndex = history.findIndex(h => h.date === currentDate);
-                let newHistory = existingIndex >= 0 ? [...history] : [...history, dayData];
-                if (existingIndex >= 0) newHistory[existingIndex] = dayData;
-                const finalHistory = newHistory.slice(-365);
-                setHistory(finalHistory);
-                localStorage.setItem('history', JSON.stringify(finalHistory));
-                setShowSuccess(true);
-                setTimeout(() => setShowSuccess(false), 2000);
-            };
 
-            const resetDay = () => setGoals(goals.map(g => ({ ...g, completed: false })));
+                const existingIndex = this.history.findIndex(h => h.date === today);
+                if (existingIndex >= 0) {
+                    this.history[existingIndex] = dayData;
+                } else {
+                    this.history.push(dayData);
+                }
 
-            const exportToCSV = () => {
-                const headers = ['Date', 'Goal', 'Category', 'Completed', 'Daily Completion Rate'];
-                const rows = [];
-                history.forEach(day => {
+                this.history = this.history.slice(-365);
+                localStorage.setItem('history', JSON.stringify(this.history));
+                this.showSuccess('Day saved! 🎉');
+                this.render();
+            }
+
+            resetDay() {
+                this.goals.forEach(g => g.completed = false);
+                this.save();
+                this.render();
+            }
+
+            save() {
+                localStorage.setItem('currentGoals', JSON.stringify(this.goals));
+            }
+
+            exportCSV() {
+                const rows = [['Date', 'Goal', 'Category', 'Completed', 'Daily Rate']];
+                this.history.forEach(day => {
                     day.goals.forEach(goal => {
                         rows.push([day.date, goal.name, goal.category || 'Uncategorized', goal.completed ? 'Yes' : 'No', `${day.completionRate}%`]);
                     });
                 });
-                const csvContent = [headers.join(','), ...rows.map(row => row.map(cell => `"${cell}"`).join(','))].join('\n');
-                const blob = new Blob([csvContent], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
+
+                const csv = rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\\n');
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = `goal-tracker-${Date.now()}.csv`;
                 a.click();
-            };
+            }
 
-            const getAnalytics = () => {
-                let daysToAnalyze = history;
-                const now = Date.now();
-                const day = 24 * 60 * 60 * 1000;
-                if (viewMode === 'week') daysToAnalyze = history.filter(h => now - h.timestamp < 7 * day);
-                else if (viewMode === 'month') daysToAnalyze = history.filter(h => now - h.timestamp < 30 * day);
-                else if (viewMode === 'year') daysToAnalyze = history.filter(h => now - h.timestamp < 365 * day);
+            showSuccess(msg = 'Success!') {
+                const toast = document.getElementById('success-toast');
+                toast.innerHTML = `<div class="flex items-center gap-3">${Icons.Sparkles}<span class="font-semibold">${msg}</span></div>`;
+                toast.classList.remove('hidden');
+                setTimeout(() => toast.classList.add('hidden'), 2000);
+            }
 
-                const goalStats = {};
-                daysToAnalyze.forEach(day => {
-                    day.goals.forEach(goal => {
-                        if (!goalStats[goal.name]) goalStats[goal.name] = { completed: 0, total: 0, category: goal.category };
-                        goalStats[goal.name].total++;
-                        if (goal.completed) goalStats[goal.name].completed++;
-                    });
-                });
-
-                const goalPerformance = Object.keys(goalStats).map(name => ({
-                    name,
-                    rate: goalStats[name].total > 0 ? Math.round((goalStats[name].completed / goalStats[name].total) * 100) : 0,
-                    completed: goalStats[name].completed,
-                    total: goalStats[name].total,
-                    category: goalStats[name].category
-                })).sort((a, b) => a.rate - b.rate);
-
-                const avgCompletion = daysToAnalyze.length > 0 ? Math.round(daysToAnalyze.reduce((sum, day) => sum + day.completionRate, 0) / daysToAnalyze.length) : 0;
-                const trendData = daysToAnalyze.slice(-14).map(day => ({ date: day.date.split('/').slice(0, 2).join('/'), rate: day.completionRate }));
-                const perfectDays = daysToAnalyze.filter(d => d.completionRate === 100).length;
-
-                return { goalPerformance, avgCompletion, trendData, daysTracked: daysToAnalyze.length, perfectDays };
-            };
-
-            const analytics = getAnalytics();
-            const radialData = [{ name: 'Completion', value: completionRate, fill: completionRate >= 80 ? '#10b981' : completionRate >= 50 ? '#f59e0b' : '#ef4444' }];
-
-            const getCategoryColor = (category) => {
+            getCategoryColor(cat) {
                 const colors = {
                     Health: 'from-green-400 to-emerald-500',
                     Work: 'from-blue-400 to-indigo-500',
@@ -196,204 +194,163 @@
                     Wellness: 'from-teal-400 to-cyan-500',
                     Finance: 'from-rose-400 to-red-500'
                 };
-                return colors[category] || 'from-gray-400 to-gray-500';
-            };
+                return colors[cat] || 'from-gray-400 to-gray-500';
+            }
 
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 md:p-8">
-                    {showSuccess && (
-                        <div className="fixed top-4 right-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 flex items-center gap-3 animate-bounce">
-                            <Sparkles />
-                            <span className="font-semibold">Great job! Day saved! 🎉</span>
-                        </div>
-                    )}
+            render() {
+                const rate = this.getCompletionRate();
+                const analytics = this.getAnalytics();
+                const streak = this.getStreak();
+                const completed = this.goals.filter(g => g.completed).length;
 
-                    <div className="max-w-7xl mx-auto">
-                        <div className="mb-8">
-                            <div className="flex items-center justify-between mb-2 flex-wrap gap-4">
-                                <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">
-                                    Goal Tracker
-                                </h1>
-                                <div className="flex gap-2">
-                                    <button onClick={saveDay} className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-3 rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-medium">
-                                        <Save />
-                                        <span className="hidden sm:inline">Save Day</span>
+                document.getElementById('app').innerHTML = `
+                    <div id="success-toast" class="hidden fixed top-4 right-4 bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 success-toast"></div>
+
+                    <div class="max-w-7xl mx-auto p-4 md:p-8">
+                        <div class="mb-8">
+                            <div class="flex items-center justify-between mb-2 flex-wrap gap-4">
+                                <h1 class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400">Goal Tracker</h1>
+                                <div class="flex gap-2">
+                                    <button onclick="tracker.saveDay()" class="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-5 py-3 rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105 font-medium">
+                                        ${Icons.Save}<span class="hidden sm:inline">Save Day</span>
                                     </button>
-                                    <button onClick={exportToCSV} className="flex items-center gap-2 bg-white/10 backdrop-blur-lg text-white px-5 py-3 rounded-xl hover:bg-white/20 transition-all duration-300 border border-white/20">
-                                        <Download />
+                                    <button onclick="tracker.exportCSV()" class="flex items-center gap-2 bg-white/10 backdrop-blur-lg text-white px-5 py-3 rounded-xl hover:bg-white/20 transition-all duration-300 border border-white/20">
+                                        ${Icons.Download}
                                     </button>
                                 </div>
                             </div>
-                            <p className="text-purple-300 text-lg">{currentDate}</p>
+                            <p class="text-purple-300 text-lg">${new Date().toLocaleDateString()}</p>
                         </div>
 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <Target />
-                                    <span className="text-white/70 text-sm font-medium">Today</span>
-                                </div>
-                                <div className="text-4xl font-bold text-white">{completionRate}%</div>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                            <div class="bg-gradient-to-br from-purple-500/20 to-pink-500/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+                                <div class="flex items-center gap-3 mb-2">${Icons.Target}<span class="text-white/70 text-sm font-medium">Today</span></div>
+                                <div class="text-4xl font-bold text-white">${rate}%</div>
                             </div>
-                            <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <BarChart3 />
-                                    <span className="text-white/70 text-sm font-medium">Average</span>
-                                </div>
-                                <div className="text-4xl font-bold text-white">{analytics.avgCompletion}%</div>
+                            <div class="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+                                <div class="flex items-center gap-3 mb-2">${Icons.Chart}<span class="text-white/70 text-sm font-medium">Average</span></div>
+                                <div class="text-4xl font-bold text-white">${analytics.avgCompletion}%</div>
                             </div>
-                            <div className="bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <Zap />
-                                    <span className="text-white/70 text-sm font-medium">Streak</span>
-                                </div>
-                                <div className="text-4xl font-bold text-white">{streak} days</div>
+                            <div class="bg-gradient-to-br from-orange-500/20 to-yellow-500/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+                                <div class="flex items-center gap-3 mb-2">${Icons.Zap}<span class="text-white/70 text-sm font-medium">Streak</span></div>
+                                <div class="text-4xl font-bold text-white">${streak} days</div>
                             </div>
-                            <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <Award />
-                                    <span className="text-white/70 text-sm font-medium">Perfect Days</span>
-                                </div>
-                                <div className="text-4xl font-bold text-white">{analytics.perfectDays}</div>
+                            <div class="bg-gradient-to-br from-green-500/20 to-emerald-500/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10">
+                                <div class="flex items-center gap-3 mb-2">${Icons.Award}<span class="text-white/70 text-sm font-medium">Perfect Days</span></div>
+                                <div class="text-4xl font-bold text-white">${analytics.perfectDays}</div>
                             </div>
                         </div>
 
-                        <div className="grid lg:grid-cols-3 gap-6 mb-8">
-                            <div className="lg:col-span-2 bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                                        <CheckCircle2 />
-                                        Today's Goals
-                                    </h2>
-                                    <button onClick={resetDay} className="text-white/50 hover:text-white/80 transition-colors text-sm">Reset All</button>
+                        <div class="grid lg:grid-cols-3 gap-6 mb-8">
+                            <div class="lg:col-span-2 bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h2 class="text-2xl font-bold text-white flex items-center gap-2">${Icons.Check}Today's Goals</h2>
+                                    <button onclick="tracker.resetDay()" class="text-white/50 hover:text-white/80 transition-colors text-sm">Reset All</button>
                                 </div>
                                 
-                                <div className="mb-6 space-y-3">
-                                    <div className="flex gap-2 flex-wrap">
-                                        <input
-                                            type="text"
-                                            value={newGoalName}
-                                            onChange={(e) => setNewGoalName(e.target.value)}
-                                            onKeyPress={(e) => e.key === 'Enter' && addGoal()}
-                                            placeholder="What do you want to accomplish today?"
-                                            className="flex-1 min-w-[200px] px-4 py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-purple-400 focus:outline-none transition-all"
-                                        />
-                                        <select value={newGoalCategory} onChange={(e) => setNewGoalCategory(e.target.value)} className="px-4 py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white focus:border-purple-400 focus:outline-none transition-all">
-                                            {categories.map(cat => <option key={cat} value={cat} className="bg-slate-800">{cat}</option>)}
+                                <div class="mb-6">
+                                    <div class="flex gap-2 flex-wrap">
+                                        <input id="goalInput" type="text" placeholder="What do you want to accomplish today?" class="flex-1 min-w-[200px] px-4 py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-purple-400 focus:outline-none transition-all">
+                                        <select id="categorySelect" class="px-4 py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white focus:border-purple-400 focus:outline-none transition-all">
+                                            ${this.categories.map(cat => `<option value="${cat}" class="bg-slate-800">${cat}</option>`).join('')}
                                         </select>
-                                        <button onClick={addGoal} className="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105">
-                                            <PlusCircle />
+                                        <button onclick="tracker.handleAddGoal()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-3 rounded-xl hover:shadow-xl transition-all duration-300 hover:scale-105">
+                                            ${Icons.Plus}
                                         </button>
                                     </div>
                                 </div>
 
-                                <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
-                                    {goals.map(goal => (
-                                        <div key={goal.id} className={`group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${goal.completed ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/50' : 'bg-white/5 border-white/10 hover:border-purple-400/50'}`}>
-                                            <div className="flex items-center gap-4 p-4">
-                                                <input type="checkbox" checked={goal.completed} onChange={() => toggleGoal(goal.id)} className="w-6 h-6 rounded-lg cursor-pointer accent-green-500" />
-                                                <div className="flex-1">
-                                                    <span className={`text-lg font-medium ${goal.completed ? 'line-through text-white/50' : 'text-white'}`}>{goal.name}</span>
-                                                    <div className={`inline-block ml-3 px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${getCategoryColor(goal.category)} text-white`}>{goal.category}</div>
+                                <div class="space-y-3 max-h-[500px] overflow-y-auto pr-2">
+                                    ${this.goals.map(goal => `
+                                        <div class="group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${goal.completed ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/50' : 'bg-white/5 border-white/10 hover:border-purple-400/50'}">
+                                            <div class="flex items-center gap-4 p-4">
+                                                <input type="checkbox" ${goal.completed ? 'checked' : ''} onchange="tracker.toggleGoal(${goal.id})" class="w-6 h-6 rounded-lg cursor-pointer accent-green-500">
+                                                <div class="flex-1">
+                                                    <span class="text-lg font-medium ${goal.completed ? 'line-through text-white/50' : 'text-white'}">${goal.name}</span>
+                                                    <div class="inline-block ml-3 px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${this.getCategoryColor(goal.category)} text-white">${goal.category}</div>
                                                 </div>
-                                                <button onClick={() => deleteGoal(goal.id)} className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all p-2">
-                                                    <Trash2 />
+                                                <button onclick="tracker.deleteGoal(${goal.id})" class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all p-2">
+                                                    ${Icons.Trash}
                                                 </button>
                                             </div>
                                         </div>
-                                    ))}
+                                    `).join('')}
+                                    ${this.goals.length === 0 ? `<div class="text-center py-16 text-white/50">${Icons.Target}<p class="text-lg mt-4">Add your first goal to get started</p></div>` : ''}
                                 </div>
-
-                                {goals.length === 0 && (
-                                    <div className="text-center py-16 text-white/50">
-                                        <Target />
-                                        <p className="text-lg mt-4">Add your first goal to get started</p>
-                                    </div>
-                                )}
                             </div>
 
-                            <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-                                <h2 className="text-2xl font-bold text-white mb-6">Progress</h2>
-                                <div className="flex flex-col items-center">
-                                    {totalCount > 0 ? (
-                                        <>
-                                            <ResponsiveContainer width="100%" height={200}>
-                                                <RadialBarChart cx="50%" cy="50%" innerRadius="70%" outerRadius="100%" data={radialData} startAngle={90} endAngle={-270}>
-                                                    <RadialBar minAngle={15} background={{ fill: '#ffffff20' }} clockWise dataKey="value" cornerRadius={10} />
-                                                </RadialBarChart>
-                                            </ResponsiveContainer>
-                                            <div className="text-center mt-4">
-                                                <div className="text-5xl font-bold text-white mb-2">{completionRate}%</div>
-                                                <p className="text-white/70">{completedCount} of {totalCount} completed</p>
+                            <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
+                                <h2 class="text-2xl font-bold text-white mb-6">Progress</h2>
+                                <div class="flex flex-col items-center">
+                                    <div class="relative w-48 h-48">
+                                        <svg class="transform -rotate-90 w-48 h-48">
+                                            <circle cx="96" cy="96" r="80" stroke="rgba(255,255,255,0.1)" stroke-width="12" fill="none"/>
+                                            <circle cx="96" cy="96" r="80" stroke="${rate >= 80 ? '#10b981' : rate >= 50 ? '#f59e0b' : '#ef4444'}" stroke-width="12" fill="none" stroke-dasharray="${2 * Math.PI * 80}" stroke-dashoffset="${2 * Math.PI * 80 * (1 - rate / 100)}" stroke-linecap="round"/>
+                                        </svg>
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="text-center">
+                                                <div class="text-5xl font-bold text-white">${rate}%</div>
                                             </div>
-                                        </>
-                                    ) : (
-                                        <div className="text-center py-12 text-white/50"><p>Add goals to see progress</p></div>
-                                    )}
+                                        </div>
+                                    </div>
+                                    <p class="text-white/70 mt-4">${completed} of ${this.goals.length} completed</p>
                                 </div>
                             </div>
                         </div>
 
-                        {history.length > 0 && (
-                            <>
-                                <div className="flex gap-3 mb-6 flex-wrap">
-                                    {['week', 'month', 'year'].map(mode => (
-                                        <button key={mode} onClick={() => setViewMode(mode)} className={`px-6 py-3 rounded-xl font-medium transition-all ${viewMode === mode ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'}`}>
-                                            {mode.charAt(0).toUpperCase() + mode.slice(1)}
-                                        </button>
-                                    ))}
-                                </div>
+                        ${this.history.length > 0 ? `
+                            <div class="flex gap-3 mb-6 flex-wrap">
+                                ${['week', 'month', 'year'].map(mode => `
+                                    <button onclick="tracker.setViewMode('${mode}')" class="px-6 py-3 rounded-xl font-medium transition-all ${this.viewMode === mode ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' : 'bg-white/5 text-white/70 hover:bg-white/10 border border-white/10'}">
+                                        ${mode.charAt(0).toUpperCase() + mode.slice(1)}
+                                    </button>
+                                `).join('')}
+                            </div>
 
-                                <div className="grid md:grid-cols-2 gap-6 mb-6">
-                                    <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-                                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                            <TrendingUp />
-                                            Performance Trend
-                                        </h3>
-                                        {analytics.trendData.length > 0 ? (
-                                            <ResponsiveContainer width="100%" height={250}>
-                                                <LineChart data={analytics.trendData}>
-                                                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
-                                                    <XAxis dataKey="date" stroke="#ffffff50" />
-                                                    <YAxis domain={[0, 100]} stroke="#ffffff50" />
-                                                    <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #ffffff20', borderRadius: '12px' }} />
-                                                    <Line type="monotone" dataKey="rate" stroke="#a855f7" strokeWidth={3} dot={{ fill: '#8b5cf6', r: 5 }} />
-                                                </LineChart>
-                                            </ResponsiveContainer>
-                                        ) : (
-                                            <p className="text-white/50 text-center py-16">Track more days to see trends</p>
-                                        )}
-                                    </div>
-
-                                    <div className="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
-                                        <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                            <Target />
-                                            Focus Areas
-                                        </h3>
-                                        <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2">
-                                            {analytics.goalPerformance.slice(0, 5).map((goal, idx) => (
-                                                <div key={idx} className="bg-white/5 rounded-xl p-4 border border-white/10">
-                                                    <div className="flex justify-between items-center mb-2">
-                                                        <span className="font-medium text-white text-sm">{goal.name}</span>
-                                                        <span className={`font-bold text-lg ${goal.rate < 50 ? 'text-red-400' : goal.rate < 75 ? 'text-orange-400' : 'text-green-400'}`}>{goal.rate}%</span>
-                                                    </div>
-                                                    <div className="w-full bg-white/10 rounded-full h-2.5">
-                                                        <div className={`h-2.5 rounded-full transition-all bg-gradient-to-r ${goal.rate < 50 ? 'from-red-500 to-red-600' : goal.rate < 75 ? 'from-orange-500 to-yellow-500' : 'from-green-500 to-emerald-500'}`} style={{ width: `${goal.rate}%` }} />
-                                                    </div>
-                                                    <p className="text-xs text-white/50 mt-2">{goal.completed}/{goal.total} times</p>
-                                                </div>
-                                            ))}
+                            <div class="bg-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/10">
+                                <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-2">${Icons.Target}Goals to Improve</h3>
+                                <div class="space-y-3 max-h-[400px] overflow-y-auto pr-2">
+                                    ${analytics.performance.slice(0, 5).map(goal => `
+                                        <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                                            <div class="flex justify-between items-center mb-2">
+                                                <span class="font-medium text-white text-sm">${goal.name}</span>
+                                                <span class="font-bold text-lg ${goal.rate < 50 ? 'text-red-400' : goal.rate < 75 ? 'text-orange-400' : 'text-green-400'}">${goal.rate}%</span>
+                                            </div>
+                                            <div class="w-full bg-white/10 rounded-full h-2.5">
+                                                <div class="h-2.5 rounded-full transition-all bg-gradient-to-r ${goal.rate < 50 ? 'from-red-500 to-red-600' : goal.rate < 75 ? 'from-orange-500 to-yellow-500' : 'from-green-500 to-emerald-500'}" style="width: ${goal.rate}%"></div>
+                                            </div>
+                                            <p class="text-xs text-white/50 mt-2">${goal.completed}/${goal.total} times</p>
                                         </div>
-                                    </div>
+                                    `).join('')}
                                 </div>
-                            </>
-                        )}
+                            </div>
+                        ` : ''}
                     </div>
-                </div>
-            );
+                `;
+            }
+
+            handleAddGoal() {
+                const input = document.getElementById('goalInput');
+                const select = document.getElementById('categorySelect');
+                this.addGoal(input.value, select.value);
+                input.value = '';
+            }
+
+            setViewMode(mode) {
+                this.viewMode = mode;
+                this.render();
+            }
+
+            attachEventListeners() {
+                document.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter' && e.target.id === 'goalInput') {
+                        this.handleAddGoal();
+                    }
+                });
+            }
         }
 
-        ReactDOM.render(<DailyTracker />, document.getElementById('root'));
+        window.tracker = new GoalTracker();
     </script>
 </body>
 </html>
