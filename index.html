@@ -15,9 +15,8 @@
         
         html, body {
             width: 100%;
-            height: 100%;
+            min-height: 100vh;
             overflow-x: hidden;
-            position: fixed;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
         
@@ -28,59 +27,34 @@
         
         #app {
             width: 100%;
-            height: 100%;
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
+            min-height: 100vh;
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
         }
         
-        ::-webkit-scrollbar { width: 0; display: none; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
         
         @keyframes slideIn { 
             from { opacity: 0; transform: translateY(-20px); } 
             to { opacity: 1; transform: translateY(0); } 
         }
         
-        @keyframes fadeIn { 
-            from { opacity: 0; } 
-            to { opacity: 1; } 
-        }
-        
         .success-toast { animation: slideIn 0.3s ease-out; }
-        .fade-in { animation: fadeIn 0.5s ease-out; }
         
         .glass-card {
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
         
-        .stat-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            transition: all 0.3s ease;
-        }
-        
-        .stat-card:active {
-            transform: scale(0.95);
-        }
-        
-        .goal-card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .goal-card:active {
-            transform: scale(0.98);
-        }
-        
-        input, select {
-            -webkit-appearance: none;
-            appearance: none;
+        input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #10b981;
         }
         
         .gradient-text {
@@ -99,13 +73,13 @@
             Plus: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
             Download: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
             Trash: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
-            Target: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
-            Check: `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`,
+            Target: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+            Check: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`,
             Save: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>`,
             Sparkles: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>`,
-            Chart: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>`,
-            Zap: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
-            Award: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>`,
+            Chart: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>`,
+            Zap: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
+            Award: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>`,
             Trend: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
             User: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
         };
@@ -129,7 +103,6 @@
                     this.promptForName();
                 }
                 this.render();
-                this.attachEventListeners();
             }
 
             promptForName() {
@@ -221,9 +194,11 @@
             }
 
             deleteGoal(id) {
-                this.goals = this.goals.filter(g => g.id !== id);
-                this.save();
-                this.render();
+                if (confirm('Delete this goal?')) {
+                    this.goals = this.goals.filter(g => g.id !== id);
+                    this.save();
+                    this.render();
+                }
             }
 
             saveDay() {
@@ -249,9 +224,11 @@
             }
 
             resetDay() {
-                this.goals.forEach(g => g.completed = false);
-                this.save();
-                this.render();
+                if (confirm('Reset all goals for today?')) {
+                    this.goals.forEach(g => g.completed = false);
+                    this.save();
+                    this.render();
+                }
             }
 
             save() {
@@ -277,9 +254,11 @@
 
             showSuccess(msg = 'Success!') {
                 const toast = document.getElementById('success-toast');
-                toast.innerHTML = `<div class="flex items-center gap-3">${Icons.Sparkles}<span class="font-semibold">${msg}</span></div>`;
-                toast.classList.remove('hidden');
-                setTimeout(() => toast.classList.add('hidden'), 2000);
+                if (toast) {
+                    toast.innerHTML = `<div class="flex items-center gap-3">${Icons.Sparkles}<span class="font-semibold">${msg}</span></div>`;
+                    toast.classList.remove('hidden');
+                    setTimeout(() => toast.classList.add('hidden'), 2000);
+                }
             }
 
             getCategoryColor(cat) {
@@ -297,14 +276,14 @@
 
             renderTrendChart(data) {
                 if (!data || data.length === 0) {
-                    return '<div class="text-center py-12 text-white/50">Save more days to see your trend</div>';
+                    return '<div class="text-center py-12 text-white/50 text-sm">Save more days to see your trend</div>';
                 }
 
                 const max = 100;
                 const height = 200;
                 const width = 100;
                 const points = data.map((d, i) => {
-                    const x = (i / (data.length - 1)) * width;
+                    const x = (i / Math.max(data.length - 1, 1)) * width;
                     const y = height - (d.rate / max) * height;
                     return `${x},${y}`;
                 }).join(' ');
@@ -316,28 +295,24 @@
                                 <stop offset="0%" style="stop-color:#a855f7;stop-opacity:1" />
                                 <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
                             </linearGradient>
-                            <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#a855f7;stop-opacity:0.3" />
-                                <stop offset="100%" style="stop-color:#a855f7;stop-opacity:0" />
-                            </linearGradient>
                         </defs>
-                        <polyline
-                            fill="none"
-                            stroke="url(#lineGradient)"
-                            stroke-width="2"
-                            points="${points}"
-                        />
-                        <polyline
-                            fill="url(#areaGradient)"
-                            points="${points} ${width},${height} 0,${height}"
-                        />
+                        <polyline fill="none" stroke="url(#lineGradient)" stroke-width="2" points="${points}"/>
                         ${data.map((d, i) => {
-                            const x = (i / (data.length - 1)) * width;
+                            const x = (i / Math.max(data.length - 1, 1)) * width;
                             const y = height - (d.rate / max) * height;
-                            return `<circle cx="${x}" cy="${y}" r="2" fill="#ec4899"/>`;
+                            return `<circle cx="${x}" cy="${y}" r="3" fill="#ec4899"/>`;
                         }).join('')}
                     </svg>
                 `;
+            }
+
+            editName() {
+                const newName = prompt("Change your name:", this.userName);
+                if (newName && newName.trim()) {
+                    this.userName = newName.trim();
+                    localStorage.setItem('userName', this.userName);
+                    this.render();
+                }
             }
 
             render() {
@@ -350,97 +325,123 @@
                 document.getElementById('app').innerHTML = `
                     <div id="success-toast" class="hidden fixed top-8 right-4 left-4 md:left-auto md:w-auto bg-gradient-to-r from-green-400 to-emerald-500 text-white px-6 py-4 rounded-2xl shadow-2xl z-50 success-toast"></div>
 
-                    <div class="min-h-full pb-8">
-                        <div class="px-4 md:px-8 pt-6 pb-4 fade-in">
+                    <div class="min-h-screen pb-8">
+                        <!-- Header -->
+                        <div class="px-4 md:px-8 pt-6 pb-4">
                             <div class="flex items-center justify-between mb-2">
                                 <div>
                                     <h1 class="text-3xl md:text-4xl font-bold gradient-text">${greeting}${this.userName ? ', ' + this.userName : ''}!</h1>
                                     <p class="text-purple-300 text-sm mt-1">${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
                                 </div>
-                                <button onclick="tracker.editName()" class="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all">
+                                <button onclick="tracker.editName()" class="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-white">
                                     ${Icons.User}
                                 </button>
                             </div>
                         </div>
 
+                        <!-- Stats Cards -->
                         <div class="px-4 md:px-8 mb-6">
                             <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                                <div class="stat-card rounded-2xl p-4 border border-white/10">
-                                    <div class="flex items-center gap-2 mb-2 opacity-70">
+                                <div class="glass-card rounded-2xl p-4">
+                                    <div class="flex items-center gap-2 mb-2 text-white/70">
                                         ${Icons.Target}
-                                        <span class="text-white/90 text-xs font-medium">Today</span>
+                                        <span class="text-xs font-medium">Today</span>
                                     </div>
-                                    <div class="text-3xl font-bold text-white">${rate}%</div>
-                                    <div class="text-xs text-white/50 mt-1">${completed}/${this.goals.length} done</div>
+                                    <div class="text-3xl font-bold text-white mb-1">${rate}%</div>
+                                    <div class="text-xs text-white/50">${completed}/${this.goals.length} done</div>
                                 </div>
-                                <div class="stat-card rounded-2xl p-4 border border-white/10">
-                                    <div class="flex items-center gap-2 mb-2 opacity-70">
+                                <div class="glass-card rounded-2xl p-4">
+                                    <div class="flex items-center gap-2 mb-2 text-white/70">
                                         ${Icons.Chart}
-                                        <span class="text-white/90 text-xs font-medium">Average</span>
+                                        <span class="text-xs font-medium">Average</span>
                                     </div>
-                                    <div class="text-3xl font-bold text-white">${analytics.avgCompletion}%</div>
-                                    <div class="text-xs text-white/50 mt-1">${analytics.daysTracked} days</div>
+                                    <div class="text-3xl font-bold text-white mb-1">${analytics.avgCompletion}%</div>
+                                    <div class="text-xs text-white/50">${analytics.daysTracked} days</div>
                                 </div>
-                                <div class="stat-card rounded-2xl p-4 border border-white/10">
-                                    <div class="flex items-center gap-2 mb-2 opacity-70">
+                                <div class="glass-card rounded-2xl p-4">
+                                    <div class="flex items-center gap-2 mb-2 text-white/70">
                                         ${Icons.Zap}
-                                        <span class="text-white/90 text-xs font-medium">Streak</span>
+                                        <span class="text-xs font-medium">Streak</span>
                                     </div>
-                                    <div class="text-3xl font-bold text-white">${streak}</div>
-                                    <div class="text-xs text-white/50 mt-1">${streak === 1 ? 'day' : 'days'} 80%+</div>
+                                    <div class="text-3xl font-bold text-white mb-1">${streak}</div>
+                                    <div class="text-xs text-white/50">${streak === 1 ? 'day' : 'days'} 80%+</div>
                                 </div>
-                                <div class="stat-card rounded-2xl p-4 border border-white/10">
-                                    <div class="flex items-center gap-2 mb-2 opacity-70">
+                                <div class="glass-card rounded-2xl p-4">
+                                    <div class="flex items-center gap-2 mb-2 text-white/70">
                                         ${Icons.Award}
-                                        <span class="text-white/90 text-xs font-medium">Perfect</span>
+                                        <span class="text-xs font-medium">Perfect</span>
                                     </div>
-                                    <div class="text-3xl font-bold text-white">${analytics.perfectDays}</div>
-                                    <div class="text-xs text-white/50 mt-1">${analytics.perfectDays === 1 ? 'day' : 'days'} 100%</div>
+                                    <div class="text-3xl font-bold text-white mb-1">${analytics.perfectDays}</div>
+                                    <div class="text-xs text-white/50">${analytics.perfectDays === 1 ? 'day' : 'days'} 100%</div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Main Content -->
                         <div class="px-4 md:px-8 mb-6">
                             <div class="grid lg:grid-cols-3 gap-4">
-                                <div class="lg:col-span-2 glass-card rounded-3xl p-5 fade-in">
+                                <!-- Goals List -->
+                                <div class="lg:col-span-2 glass-card rounded-3xl p-5">
                                     <div class="flex items-center justify-between mb-5">
                                         <h2 class="text-xl font-bold text-white flex items-center gap-2">
                                             ${Icons.Check}
                                             <span>Today's Goals</span>
                                         </h2>
                                         <div class="flex gap-2">
-                                            <button onclick="tracker.resetDay()" class="text-white/50 hover:text-white/80 transition-colors text-sm px-3 py-1 rounded-lg hover:bg-white/10">
+                                            <button onclick="tracker.resetDay()" class="text-white/50 hover:text-white/80 transition-colors text-sm px-3 py-1.5 rounded-lg hover:bg-white/10">
                                                 Reset
                                             </button>
-                                            <button onclick="tracker.saveDay()" class="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-2 rounded-xl hover:shadow-lg transition-all text-sm font-medium">
+                                            <button onclick="tracker.saveDay()" class="flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-1.5 rounded-xl hover:shadow-lg transition-all text-sm font-medium">
                                                 ${Icons.Save}
                                                 Save
                                             </button>
                                         </div>
                                     </div>
                                     
+                                    <!-- Add Goal Form -->
                                     <div class="mb-4">
                                         <div class="flex gap-2 flex-wrap">
-                                            <input id="goalInput" type="text" placeholder="Add a new goal..." class="flex-1 min-w-[180px] px-4 py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-purple-400 focus:outline-none transition-all text-sm">
-                                            <select id="categorySelect" class="px-4 py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white focus:border-purple-400 focus:outline-none transition-all text-sm">
+                                            <input 
+                                                id="goalInput" 
+                                                type="text" 
+                                                placeholder="Add a new goal..." 
+                                                class="flex-1 min-w-[180px] px-4 py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white placeholder-white/50 focus:border-purple-400 focus:outline-none transition-all text-sm"
+                                                onkeypress="if(event.key==='Enter') tracker.handleAddGoal()"
+                                            >
+                                            <select 
+                                                id="categorySelect" 
+                                                class="px-4 py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white focus:border-purple-400 focus:outline-none transition-all text-sm"
+                                            >
                                                 ${this.categories.map(cat => `<option value="${cat}" class="bg-slate-800">${cat}</option>`).join('')}
                                             </select>
-                                            <button onclick="tracker.handleAddGoal()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-3 rounded-xl hover:shadow-lg transition-all">
+                                            <button 
+                                                onclick="tracker.handleAddGoal()" 
+                                                class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-3 rounded-xl hover:shadow-lg transition-all"
+                                            >
                                                 ${Icons.Plus}
                                             </button>
                                         </div>
                                     </div>
 
-                                    <div class="space-y-2 max-h-[450px] overflow-y-auto pr-2">
+                                    <!-- Goals List -->
+                                    <div class="space-y-2 max-h-[450px] overflow-y-auto">
                                         ${this.goals.map(goal => `
-                                            <div class="goal-card group relative overflow-hidden rounded-xl border transition-all ${goal.completed ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/40' : 'bg-white/5 border-white/10 hover:border-purple-400/50'}">
-                                                <div class="flex items-center gap-3 p-3">
-                                                    <input type="checkbox" ${goal.completed ? 'checked' : ''} onchange="tracker.toggleGoal(${goal.id})" class="w-5 h-5 rounded-lg cursor-pointer accent-green-500">
+                                            <div class="group rounded-xl border transition-all ${goal.completed ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 border-green-500/40' : 'bg-white/5 border-white/10 hover:border-purple-400/50'} p-3">
+                                                <div class="flex items-center gap-3">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        ${goal.completed ? 'checked' : ''} 
+                                                        onchange="tracker.toggleGoal(${goal.id})" 
+                                                        class="w-6 h-6 shrink-0"
+                                                    >
                                                     <div class="flex-1 min-w-0">
-                                                        <span class="text-base font-medium block truncate ${goal.completed ? 'line-through text-white/50' : 'text-white'}">${goal.name}</span>
-                                                        <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r ${this.getCategoryColor(goal.category)} text-white">${goal.category}</span>
+                                                        <div class="text-base font-medium ${goal.completed ? 'line-through text-white/50' : 'text-white'} mb-1">${goal.name}</div>
+                                                        <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r ${this.getCategoryColor(goal.category)} text-white">${goal.category}</span>
                                                     </div>
-                                                    <button onclick="tracker.deleteGoal(${goal.id})" class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all p-2 shrink-0">
+                                                    <button 
+                                                        onclick="tracker.deleteGoal(${goal.id})" 
+                                                        class="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 transition-all p-2 shrink-0"
+                                                    >
                                                         ${Icons.Trash}
                                                     </button>
                                                 </div>
@@ -448,20 +449,32 @@
                                         `).join('')}
                                         ${this.goals.length === 0 ? `
                                             <div class="text-center py-16 text-white/50">
-                                                <div class="mb-4 opacity-50">${Icons.Target}</div>
+                                                <div class="mb-4 opacity-50 flex justify-center">${Icons.Target}</div>
                                                 <p class="text-base">Add your first goal above</p>
                                             </div>
                                         ` : ''}
                                     </div>
                                 </div>
 
-                                <div class="glass-card rounded-3xl p-5 fade-in">
+                                <!-- Progress Circle -->
+                                <div class="glass-card rounded-3xl p-5">
                                     <h2 class="text-xl font-bold text-white mb-5">Progress</h2>
                                     <div class="flex flex-col items-center">
                                         <div class="relative w-44 h-44 mb-4">
                                             <svg class="transform -rotate-90 w-44 h-44">
                                                 <circle cx="88" cy="88" r="70" stroke="rgba(255,255,255,0.1)" stroke-width="10" fill="none"/>
-                                                <circle cx="88" cy="88" r="70" stroke="${rate >= 80 ? '#10b981' : rate >= 50 ? '#f59e0b' : '#ef4444'}" stroke-width="10" fill="none" stroke-dasharray="${2 * Math.PI * 70}" stroke-dashoffset="${2 * Math.PI * 70 * (1 - rate / 100)}" stroke-linecap="round" style="transition: stroke-dashoffset 0.5s ease;"/>
+                                                <circle 
+                                                    cx="88" 
+                                                    cy="88" 
+                                                    r="70" 
+                                                    stroke="${rate >= 80 ? '#10b981' : rate >= 50 ? '#f59e0b' : '#ef4444'}" 
+                                                    stroke-width="10" 
+                                                    fill="none" 
+                                                    stroke-dasharray="${2 * Math.PI * 70}" 
+                                                    stroke-dashoffset="${2 * Math.PI * 70 * (1 - rate / 100)}" 
+                                                    stroke-linecap="round" 
+                                                    style="transition: stroke-dashoffset 0.5s ease;"
+                                                />
                                             </svg>
                                             <div class="absolute inset-0 flex items-center justify-center">
                                                 <div class="text-center">
@@ -470,7 +483,10 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <button onclick="tracker.exportCSV()" class="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-3 rounded-xl transition-all border border-white/20 text-sm font-medium">
+                                        <button 
+                                            onclick="tracker.exportCSV()" 
+                                            class="w-full flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-3 rounded-xl transition-all border border-white/20 text-sm font-medium"
+                                        >
                                             ${Icons.Download}
                                             Export Data
                                         </button>
@@ -479,11 +495,15 @@
                             </div>
                         </div>
 
+                        <!-- Analytics Section -->
                         ${this.history.length > 0 ? `
                             <div class="px-4 md:px-8 mb-4">
                                 <div class="flex gap-2 flex-wrap">
                                     ${['week', 'month', 'year'].map(mode => `
-                                        <button onclick="tracker.setViewMode('${mode}')" class="px-5 py-2 rounded-xl font-medium transition-all text-sm ${this.viewMode === mode ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/10'}">
+                                        <button 
+                                            onclick="tracker.setViewMode('${mode}')" 
+                                            class="px-5 py-2 rounded-xl font-medium transition-all text-sm ${this.viewMode === mode ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg' : 'bg-white/10 text-white/70 hover:bg-white/20 border border-white/10'}"
+                                        >
                                             ${mode.charAt(0).toUpperCase() + mode.slice(1)}
                                         </button>
                                     `).join('')}
@@ -492,20 +512,22 @@
 
                             <div class="px-4 md:px-8">
                                 <div class="grid md:grid-cols-2 gap-4">
-                                    <div class="glass-card rounded-3xl p-5 fade-in">
+                                    <!-- Trend Chart -->
+                                    <div class="glass-card rounded-3xl p-5">
                                         <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                             ${Icons.Trend}
-                                            Trend
+                                            Performance Trend
                                         </h3>
                                         ${this.renderTrendChart(analytics.trendData)}
                                     </div>
 
-                                    <div class="glass-card rounded-3xl p-5 fade-in">
+                                    <!-- Focus Areas -->
+                                    <div class="glass-card rounded-3xl p-5">
                                         <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                             ${Icons.Target}
-                                            Focus On
+                                            Goals to Focus On
                                         </h3>
-                                        <div class="space-y-3 max-h-[250px] overflow-y-auto pr-2">
+                                        <div class="space-y-3 max-h-[250px] overflow-y-auto">
                                             ${analytics.performance.slice(0, 5).map(goal => `
                                                 <div class="bg-white/5 rounded-xl p-3 border border-white/10">
                                                     <div class="flex justify-between items-center mb-2">
@@ -513,7 +535,10 @@
                                                         <span class="font-bold ${goal.rate < 50 ? 'text-red-400' : goal.rate < 75 ? 'text-orange-400' : 'text-green-400'} shrink-0">${goal.rate}%</span>
                                                     </div>
                                                     <div class="w-full bg-white/10 rounded-full h-2">
-                                                        <div class="h-2 rounded-full transition-all bg-gradient-to-r ${goal.rate < 50 ? 'from-red-500 to-red-600' : goal.rate < 75 ? 'from-orange-500 to-yellow-500' : 'from-green-500 to-emerald-500'}" style="width: ${goal.rate}%"></div>
+                                                        <div 
+                                                            class="h-2 rounded-full transition-all bg-gradient-to-r ${goal.rate < 50 ? 'from-red-500 to-red-600' : goal.rate < 75 ? 'from-orange-500 to-yellow-500' : 'from-green-500 to-emerald-500'}" 
+                                                            style="width: ${goal.rate}%"
+                                                        ></div>
                                                     </div>
                                                     <p class="text-xs text-white/50 mt-1">${goal.completed}/${goal.total} completed</p>
                                                 </div>
@@ -528,33 +553,18 @@
                 `;
             }
 
-            editName() {
-                const newName = prompt("Change your name:", this.userName);
-                if (newName && newName.trim()) {
-                    this.userName = newName.trim();
-                    localStorage.setItem('userName', this.userName);
-                    this.render();
-                }
-            }
-
             handleAddGoal() {
                 const input = document.getElementById('goalInput');
                 const select = document.getElementById('categorySelect');
-                this.addGoal(input.value, select.value);
-                input.value = '';
+                if (input && select) {
+                    this.addGoal(input.value, select.value);
+                    input.value = '';
+                }
             }
 
             setViewMode(mode) {
                 this.viewMode = mode;
                 this.render();
-            }
-
-            attachEventListeners() {
-                document.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter' && e.target.id === 'goalInput') {
-                        this.handleAddGoal();
-                    }
-                });
             }
         }
 
