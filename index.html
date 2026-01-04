@@ -88,9 +88,9 @@
             constructor() {
                 this.userName = localStorage.getItem('userName') || '';
                 this.goals = JSON.parse(localStorage.getItem('currentGoals')) || [
-                    { id: 1, name: 'Morning Exercise', completed: false, category: 'Health' },
-                    { id: 2, name: 'Drink 8 Glasses of Water', completed: false, category: 'Health' },
-                    { id: 3, name: 'Meditate 10 Minutes', completed: false, category: 'Wellness' }
+                    { id: 1, name: 'Morning Exercise', completed: false, category: 'Health', frequency: 'daily' },
+                    { id: 2, name: 'Drink 8 Glasses of Water', completed: false, category: 'Health', frequency: 'daily' },
+                    { id: 3, name: 'Meditate 10 Minutes', completed: false, category: 'Wellness', frequency: 'daily' }
                 ];
                 this.history = JSON.parse(localStorage.getItem('history')) || [];
                 this.viewMode = 'week';
@@ -171,9 +171,9 @@
                 return { performance, avgCompletion, perfectDays, daysTracked: days.length, trendData };
             }
 
-            addGoal(name, category) {
+            addGoal(name, category, frequency) {
                 if (name.trim()) {
-                    this.goals.push({ id: Date.now(), name: name.trim(), completed: false, category });
+                    this.goals.push({ id: Date.now(), name: name.trim(), completed: false, category, frequency: frequency || 'daily' });
                     this.save();
                     this.render();
                 }
@@ -205,7 +205,7 @@
                 const today = new Date().toLocaleDateString();
                 const dayData = {
                     date: today,
-                    goals: this.goals.map(g => ({ name: g.name, completed: g.completed, category: g.category })),
+                    goals: this.goals.map(g => ({ name: g.name, completed: g.completed, category: g.category, frequency: g.frequency })),
                     completionRate: this.getCompletionRate(),
                     timestamp: Date.now()
                 };
@@ -236,10 +236,10 @@
             }
 
             exportCSV() {
-                const rows = [['Date', 'Goal', 'Category', 'Completed', 'Daily Rate']];
+                const rows = [['Date', 'Goal', 'Category', 'Frequency', 'Completed', 'Daily Rate']];
                 this.history.forEach(day => {
                     day.goals.forEach(goal => {
-                        rows.push([day.date, goal.name, goal.category || 'Uncategorized', goal.completed ? 'Yes' : 'No', `${day.completionRate}%`]);
+                        rows.push([day.date, goal.name, goal.category || 'Uncategorized', goal.frequency || 'daily', goal.completed ? 'Yes' : 'No', `${day.completionRate}%`]);
                     });
                 });
 
@@ -414,6 +414,14 @@
                                             >
                                                 ${this.categories.map(cat => `<option value="${cat}" class="bg-slate-800">${cat}</option>`).join('')}
                                             </select>
+                                            <select 
+                                                id="frequencySelect" 
+                                                class="px-4 py-3 bg-white/10 backdrop-blur-lg border border-white/20 rounded-xl text-white focus:border-purple-400 focus:outline-none transition-all text-sm"
+                                            >
+                                                <option value="daily" class="bg-slate-800">Daily</option>
+                                                <option value="weekly" class="bg-slate-800">Weekly</option>
+                                                <option value="monthly" class="bg-slate-800">Monthly</option>
+                                            </select>
                                             <button 
                                                 onclick="tracker.handleAddGoal()" 
                                                 class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-3 rounded-xl hover:shadow-lg transition-all"
@@ -436,7 +444,10 @@
                                                     >
                                                     <div class="flex-1 min-w-0">
                                                         <div class="text-base font-medium ${goal.completed ? 'line-through text-white/50' : 'text-white'} mb-1">${goal.name}</div>
-                                                        <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r ${this.getCategoryColor(goal.category)} text-white">${goal.category}</span>
+                                                        <div class="flex gap-2 flex-wrap">
+                                                            <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r ${this.getCategoryColor(goal.category)} text-white">${goal.category}</span>
+                                                            <span class="inline-block px-2 py-0.5 rounded-full text-xs font-medium bg-white/20 text-white/90">${goal.frequency || 'daily'}</span>
+                                                        </div>
                                                     </div>
                                                     <button 
                                                         onclick="tracker.deleteGoal(${goal.id})" 
@@ -556,8 +567,9 @@
             handleAddGoal() {
                 const input = document.getElementById('goalInput');
                 const select = document.getElementById('categorySelect');
-                if (input && select) {
-                    this.addGoal(input.value, select.value);
+                const frequencySelect = document.getElementById('frequencySelect');
+                if (input && select && frequencySelect) {
+                    this.addGoal(input.value, select.value, frequencySelect.value);
                     input.value = '';
                 }
             }
