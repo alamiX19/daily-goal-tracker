@@ -76,6 +76,7 @@
         const Icons = {
             Plus: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>`,
             Download: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>`,
+            Upload: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>`,
             Trash: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`,
             Target: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
             Check: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></svg>`,
@@ -85,7 +86,8 @@
             Zap: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`,
             Award: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>`,
             Trend: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
-            User: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
+            User: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+            Database: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>`
         };
 
         class GoalTracker {
@@ -375,6 +377,64 @@
                 a.click();
             }
 
+            exportBackup() {
+                const backup = {
+                    version: '1.0',
+                    exportDate: new Date().toISOString(),
+                    userName: this.userName,
+                    goals: this.goals,
+                    history: this.history
+                };
+
+                const json = JSON.stringify(backup, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `goal-tracker-backup-${Date.now()}.json`;
+                a.click();
+                this.showSuccess('Backup downloaded! 💾');
+            }
+
+            importBackup() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const backup = JSON.parse(event.target.result);
+                            
+                            if (!backup.version || !backup.goals || !backup.history) {
+                                throw new Error('Invalid backup file format');
+                            }
+
+                            if (confirm('This will replace all your current data. Continue?')) {
+                                this.userName = backup.userName || this.userName;
+                                this.goals = backup.goals;
+                                this.history = backup.history;
+                                
+                                localStorage.setItem('userName', this.userName);
+                                localStorage.setItem('currentGoals', JSON.stringify(this.goals));
+                                localStorage.setItem('history', JSON.stringify(this.history));
+                                
+                                this.showSuccess('Data restored successfully! 🎉');
+                                this.render();
+                            }
+                        } catch (error) {
+                            alert('Error reading backup file. Please make sure it\'s a valid backup file.');
+                            console.error(error);
+                        }
+                    };
+                    reader.readAsText(file);
+                };
+                input.click();
+            }
+
             showSuccess(msg = 'Success!') {
                 const toast = document.getElementById('success-toast');
                 if (toast) {
@@ -398,19 +458,19 @@
             }
 
             renderProgressCircle(rate, label, icon) {
-                const radius = 60;
+                const radius = 55;
                 const circumference = 2 * Math.PI * radius;
                 const offset = circumference * (1 - rate / 100);
                 const color = rate >= 80 ? '#10b981' : rate >= 50 ? '#f59e0b' : '#ef4444';
 
                 return `
-                    <div class="text-center">
-                        <div class="relative w-36 h-36 mx-auto mb-3">
-                            <svg class="transform -rotate-90 w-36 h-36">
-                                <circle cx="72" cy="72" r="${radius}" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="none"/>
+                    <div class="text-center flex flex-col items-center justify-center py-4">
+                        <div class="relative w-32 h-32 mx-auto mb-4">
+                            <svg class="transform -rotate-90 w-32 h-32">
+                                <circle cx="64" cy="64" r="${radius}" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="none"/>
                                 <circle 
-                                    cx="72" 
-                                    cy="72" 
+                                    cx="64" 
+                                    cy="64" 
                                     r="${radius}" 
                                     stroke="${color}" 
                                     stroke-width="8" 
@@ -423,11 +483,11 @@
                             </svg>
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <div class="text-center">
-                                    <div class="text-4xl font-bold text-white">${rate}%</div>
+                                    <div class="text-3xl font-bold text-white">${rate}%</div>
                                 </div>
                             </div>
                         </div>
-                        <div class="flex items-center justify-center gap-2 text-white/70">
+                        <div class="flex items-center justify-center gap-2 text-white/70 mt-2">
                             ${icon}
                             <span class="text-sm font-medium">${label}</span>
                         </div>
@@ -561,14 +621,22 @@
 
                     <div class="min-h-screen pb-8">
                         <div class="px-4 md:px-8 pt-6 pb-4">
-                            <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
                                 <div>
                                     <h1 class="text-3xl md:text-4xl font-bold gradient-text">${greeting}${this.userName ? ', ' + this.userName : ''}!</h1>
                                     <p class="text-purple-300 text-sm mt-1">${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
                                 </div>
-                                <button onclick="tracker.editName()" class="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-white">
-                                    ${Icons.User}
-                                </button>
+                                <div class="flex gap-2">
+                                    <button onclick="tracker.importBackup()" class="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-white" title="Import Backup">
+                                        ${Icons.Upload}
+                                    </button>
+                                    <button onclick="tracker.exportBackup()" class="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-white" title="Export Backup">
+                                        ${Icons.Database}
+                                    </button>
+                                    <button onclick="tracker.editName()" class="p-3 rounded-xl bg-white/10 hover:bg-white/20 transition-all text-white" title="Change Name">
+                                        ${Icons.User}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -709,27 +777,27 @@
                                 </div>
 
                                 ${hasDailyGoals ? `
-                                <div class="glass-card rounded-3xl p-5">
-                                    <h2 class="text-xl font-bold text-white mb-5">Daily Progress</h2>
-                                    <div class="flex flex-col items-center justify-center h-full">
+                                <div class="glass-card rounded-3xl p-5 flex flex-col">
+                                    <h2 class="text-xl font-bold text-white mb-3">Daily Progress</h2>
+                                    <div class="flex-1 flex items-center justify-center">
                                         ${this.renderProgressCircle(dailyRate, 'Today', Icons.Check)}
                                     </div>
                                 </div>
                                 ` : ''}
 
                                 ${hasWeeklyGoals ? `
-                                <div class="glass-card rounded-3xl p-5">
-                                    <h2 class="text-xl font-bold text-white mb-5">Weekly Progress</h2>
-                                    <div class="flex flex-col items-center justify-center h-full">
+                                <div class="glass-card rounded-3xl p-5 flex flex-col">
+                                    <h2 class="text-xl font-bold text-white mb-3">Weekly Progress</h2>
+                                    <div class="flex-1 flex items-center justify-center">
                                         ${this.renderProgressCircle(weeklyRate, 'This Week', Icons.Calendar)}
                                     </div>
                                 </div>
                                 ` : ''}
 
                                 ${hasMonthlyGoals ? `
-                                <div class="glass-card rounded-3xl p-5">
-                                    <h2 class="text-xl font-bold text-white mb-5">Monthly Progress</h2>
-                                    <div class="flex flex-col items-center justify-center h-full">
+                                <div class="glass-card rounded-3xl p-5 flex flex-col">
+                                    <h2 class="text-xl font-bold text-white mb-3">Monthly Progress</h2>
+                                    <div class="flex-1 flex items-center justify-center">
                                         ${this.renderProgressCircle(monthlyRate, 'This Month', Icons.Calendar)}
                                     </div>
                                 </div>
